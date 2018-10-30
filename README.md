@@ -1,2 +1,0 @@
-# springdbuppg
-School assignment
