@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	th:include="fragments/layout :: page" lang="en" dir="ltr">
+<head>
+<title>Login</title>
+</head>
+<body>
+	<div th:fragment="content">
+		<!--  -->
+		<div class="grid-x grid-padding-x">
+			<div class="large-4 cell"></div>
+			<div class="large-4 cell">
+				<form class="log-in-form">
+					<h4 class="text-center">Register</h4>
+					<label>Username <input type="text" placeholder="Username"></label>
+					<p class="error">Username allready taken</p>
+					<label>Email <input type="email"
+						placeholder="somebody@example.com">
+					</label> 					<p class="error">Invalid email</p><label>Password <input type="password"
+						placeholder="Password">
+					</label> <label>Confirm password <input type="password"
+						placeholder="Password">
+					</label>					<p class="error">Passwords dont match</p>
+					<p>
+						<input type="submit" class="button expanded" value="Register"></input>
+					</p>
+				</form>
+
+			</div>
+			<div class="large-4 cell"></div>
+		</div>
+		<div class="grid-x grid-padding-x">
+			<div class="large-4 cell"></div>
+			<div class="large-4 cell">
+				<p class="error text-center">Error message</p>
+			</div>
+			<div class="large-4 cell"></div>
+		</div>
+		<!--  -->
+	</div>
+</body>
+</html>
