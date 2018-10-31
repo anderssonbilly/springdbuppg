@@ -1,0 +1,12 @@
+.log-in-form {
+  border: 1px solid #cacaca;
+  padding: 1rem;
+  border-radius: 0;
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.error{
+	color:red;
+	font-style:italic;
+}
