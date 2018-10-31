@@ -11,12 +11,12 @@
 		<div class="grid-x grid-padding-x">
 			<div class="large-4 cell"></div>
 			<div class="large-4 cell">
-				<form class="log-in-form">
+				<form class="log-in-form" th:action="@{/login}" method="post">
 					<h4 class="text-center">Login form</h4>
-					<label>Email <input type="email"
-						placeholder="somebody@example.com">
+					<label>Username <input type="text" placeholder="username"
+						id="username" name="username">
 					</label> <label>Password <input type="password"
-						placeholder="Password">
+						placeholder="password" id="password" name="password">
 					</label>
 					<p>
 						<input type="submit" class="button expanded" value="Log in"></input>
@@ -26,10 +26,11 @@
 			</div>
 			<div class="large-4 cell"></div>
 		</div>
-				<div class="grid-x grid-padding-x">
+		<div class="grid-x grid-padding-x">
 			<div class="large-4 cell"></div>
 			<div class="large-4 cell">
-				<p class="error text-center">Error message</p>
+				<p class="error text-center" th:if="${param.error}">Wrong username or password</p>
+				<p class="text-center" th:if="${param.logout}">You have been logged out</p>
 			</div>
 			<div class="large-4 cell"></div>
 		</div>
