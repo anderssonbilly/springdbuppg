@@ -1,13 +1,18 @@
 package com.databasuppg.config;
 
 
+import lombok.Getter;
+
 import java.io.*;
 
 public class Config {
 
     private static final String PATH = System.getProperty("user.dir") + "/config.cfg";
-    private String APIKey;
-    private int width, height;
+    @Getter private String APIKey;
+    @Getter private int width, height;
+
+
+    public Config() { loadConfig(); }
 
     private void loadConfig() {
         File file = new File(PATH);
@@ -32,19 +37,6 @@ public class Config {
         line = line.substring(0, line.indexOf("\""));
 
         return line;
-    }
-
-    // Getters
-    public String getKey() {
-        return APIKey;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
     }
 
 
