@@ -12,7 +12,11 @@ public class Track {
         this.url = url;
     }
 
-
-
-
+    @Override
+    public String toString() {
+        return "Track{" +
+                "name='" + name + '\'' +
+                ", duration=" + duration +
+                '}';
+    }
 }
