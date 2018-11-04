@@ -10,3 +10,10 @@
 	color:red;
 	font-style:italic;
 }
+
+.inputError{
+	background-color: #e83737;
+}
+.inputError:focus{
+	background-color: #f28e8e;
+}
