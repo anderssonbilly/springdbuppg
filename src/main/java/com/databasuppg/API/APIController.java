@@ -131,10 +131,10 @@ public class APIController {
     }
 
     //TODO implement this to prevent redundant code.
-    private Object getChildElements(String tag) {
+//    private Object getChildElements(String tag) {
 
-        return Object;
-    }
+//        return Object;
+//    }
 
 
 
