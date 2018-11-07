@@ -35,21 +35,6 @@ public class APIController {
         }
     }
 
-
-    // testing
-    public static void main(String[] args) {
-        APIController api = new APIController();
-
-        ArrayList<Album> results = api.getAlbum("believe", 20);
-
-        for (Album album : results) {
-            System.out.println(album.toString());
-            System.out.println("+---------------------+");
-        }
-
-
-    }
-
     public ArrayList<Album> getAlbum(String albumName, int limit) {
 
         ArrayList<Album> results = new ArrayList<>();
