@@ -17,12 +17,6 @@ public class LoginController {
 
 	@RequestMapping("/login")
 	public String index(Model model) {
-		System.out.println(SecurityContextHolder.getContext().getAuthentication());
-		System.out.println(SecurityContextHolder.getContext().getAuthentication().isAuthenticated());
-
-		System.out.println(
-				SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken);
-
 		return (securityService.isAuthenticated()) ? "index" : "login";
 	}
 }

@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
-	xmlns:th="http://www.thymeleaf.org" lang="en" dir="ltr">
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+	lang="en" dir="ltr">
 <head>
 <meta charset="ISO-8859-1"></meta>
 <title>Header</title>
@@ -24,7 +26,7 @@
 				<div class="top-bar" id="responsive-menu">
 					<div class="top-bar-left">
 						<ul class="dropdown menu" data-dropdown-menu>
-							<li class="menu-text">Site Title</li>
+							<li class="menu-text">Menu</li>
 							<li class="has-submenu"><a href="/lastfm">Albums</a></li>
 							<li><a href="#collection">Collection</a>
 								<ul class="submenu menu vertical" data-submenu>
@@ -34,9 +36,14 @@
 						</ul>
 					</div>
 					<div class="top-bar-right">
-						<ul class="menu">
+						<ul class="menu" sec:authorize="isAnonymous()">
 							<li><a href="/login">Login</a></li>
 							<li><a href="/register">Register</a></li>
+						</ul>
+						<ul class="menu" sec:authorize="isAuthenticated()">
+							<li><span class="float-right menu-user"> (<span
+									sec:authentication="name"></span>)
+							</span> <a class="float-right" href="/logout">Logout</a></li>
 						</ul>
 					</div>
 					<div class="top-bar-right">
