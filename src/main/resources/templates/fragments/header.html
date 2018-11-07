@@ -26,7 +26,7 @@
 				<div class="top-bar" id="responsive-menu">
 					<div class="top-bar-left">
 						<ul class="dropdown menu" data-dropdown-menu>
-							<li class="menu-text">Site Title</li>
+							<li class="menu-text">Menu</li>
 							<li class="has-submenu"><a href="/lastfm">Albums</a></li>
 							<li><a href="#collection">Collection</a>
 								<ul class="submenu menu vertical" data-submenu>
@@ -41,7 +41,9 @@
 							<li><a href="/register">Register</a></li>
 						</ul>
 						<ul class="menu" sec:authorize="isAuthenticated()">
-							<li><a href="/logout">Logout</a></li>
+							<li><span class="float-right menu-user"> (<span
+									sec:authentication="name"></span>)
+							</span> <a class="float-right" href="/logout">Logout</a></li>
 						</ul>
 					</div>
 					<div class="top-bar-right">
