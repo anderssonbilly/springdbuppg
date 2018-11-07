@@ -12,6 +12,8 @@ public class Track {
         this.url = url;
     }
 
+    public Track(){}
+
     @Override
     public String toString() {
         return "Track{" +
