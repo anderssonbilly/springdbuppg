@@ -3,6 +3,7 @@ package com.databasuppg.API;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -21,17 +22,26 @@ import java.util.ArrayList;
 
 public class APIController {
 
-    @Value("${lastfm.api.key}") private String key;
-
+    private String key;
     private String root = "http://ws.audioscrobbler.com/2.0/";
     private DocumentBuilder documentBuilder;
 
 
-    public APIController() {
+    public APIController(String key) {
+        this.key = key;
+
+
         try {
             this.documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch(ParserConfigurationException e) {
             e.getMessage();
+        }
+    }
+
+    public static void main(String args[]) {
+        APIController c = new APIController("e785b0c4c020c29bc7a9968603aac839");
+        for(Album album : c.getAlbum("Good", 20)) {
+            System.out.println(album.toString());
         }
     }
 
@@ -49,13 +59,13 @@ public class APIController {
 
             for(int i=0; i<nodes.getLength(); i++) {
                 Node node = nodes.item(i);
-
+                Element currentElement = (Element) node;
                 if(node.getNodeType() == Node.ELEMENT_NODE) {
 
-                    String name = element.getElementsByTagName("name").item(0).getTextContent();
-                    String artist = element.getElementsByTagName("artist").item(0).getTextContent();
-                    String url = element.getElementsByTagName("url").item(0).getTextContent();
-                    String image = element.getElementsByTagName("image").item(1).getTextContent();
+                    String name = currentElement.getElementsByTagName("name").item(0).getTextContent();
+                    String artist = currentElement.getElementsByTagName("artist").item(0).getTextContent();
+                    String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
+                    String image = currentElement.getElementsByTagName("image").item(1).getTextContent();
                     ArrayList<Track> tracks = getTrack(name, artist);
 
                     Document temp = getAlbumInfo(name, artist);
@@ -107,17 +117,23 @@ public class APIController {
 
     }
 
-
+    // API methods
     //TODO Implement page variable
     private Document searchAlbum(String name, int limit) throws IOException, SAXException {
-        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", name, limit, this.key));
+        String urlString = root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", name, limit, this.key);
+        urlString = urlString.replaceAll(" ", "%20");
+
+        URL url = new URL(urlString);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
 
     }
 
     private Document getAlbumInfo(String album, String artist) throws IOException, SAXException {
-        URL url = new URL(root + String.format("?method=album.getinfo&api_key=%s&artist=%s&album=%s", this.key, artist, album));
+        String urlString = root + String.format("?method=album.getinfo&api_key=%s&artist=%s&album=%s", this.key, artist, album);
+        urlString = urlString.replaceAll(" ", "%20");
+
+        URL url = new URL(urlString);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
     }
