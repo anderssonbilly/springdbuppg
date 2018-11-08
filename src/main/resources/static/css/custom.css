@@ -1,25 +1,70 @@
 .log-in-form {
-  border: 1px solid #cacaca;
-  padding: 1rem;
-  border-radius: 0;
-  width: 100%;
-  margin-top: 1rem;
+	border: 1px solid #cacaca;
+	padding: 1rem;
+	border-radius: 0;
+	width: 100%;
+	margin-top: 1rem;
 }
 
-.error{
-	color:red;
-	font-style:italic;
+.error {
+	color: red;
+	font-style: italic;
 	margin-bottom: 0em;
 }
 
-.inputError{
+.inputError {
 	background-color: #e83737;
 }
-.inputError:focus{
+
+.inputError:focus {
 	background-color: #f28e8e;
 }
 
-.menu-user{
+.menu-user {
 	padding: 0.375em;
 	margin-left: -1em;
+}
+
+.flex-box {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	flex-flow: row wrap;
+}
+
+.album {
+	background-color: #fefefe;
+	border: 1px solid #e6e6e6;
+	padding: 1rem;
+	margin-bottom: 1.5rem;
+	max-width: 13em;
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	flex-flow: row wrap;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+.album-thumbnail {
+	display: block;
+	position: relative;
+}
+
+.album-title {
+	font-family: 'Open sans', sans-serif;
+	font-size: 0.9rem;
+	font-weight: 600;
+	line-height: 1rem;
+	margin-top: 0.5rem;
+	width: 100%;
+}
+
+.artist {
+	color: #8a8a8a;
+	display: block;
+	font-family: 'Open sans', sans-serif;
+	font-size: 0.85rem;
+	line-height: 0.75rem;
+	margin-bottom: 0;
 }

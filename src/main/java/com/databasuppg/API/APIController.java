@@ -22,7 +22,7 @@ public class APIController {
     private DocumentBuilder documentBuilder;
 
 
-    APIController(String key) {
+    public APIController(String key) {
         this.key = key;
 
         try {
@@ -33,22 +33,22 @@ public class APIController {
     }
 
 
-    public static void main(String[] args) {
-
-        Config conf = new Config();
-        APIController c = new APIController(conf.getAPIKey());
-
-
-        try {
-            ArrayList<Album> albumResults = c.searchAlbum("believe", 10);
-            for(Track track : c.getTracks(albumResults.get(0))) {
-                System.out.println(track.toString());
-            }
-
-        } catch (SAXException | IOException e) {
-            e.printStackTrace();
-        }
-    }
+//    public static void main(String[] args) {
+//
+//        Config conf = new Config();
+//        APIController c = new APIController(conf.getAPIKey());
+//
+//
+//        try {
+//            ArrayList<Album> albumResults = c.searchAlbum("believe", 10);
+//            for(Track track : c.getTracks(albumResults.get(0))) {
+//                System.out.println(track.toString());
+//            }
+//
+//        } catch (SAXException | IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 
 
     public ArrayList<Album> searchAlbum(String name, int limit) throws IOException, SAXException {

@@ -10,15 +10,36 @@
 		<!--  -->
 		<div class="grid-x grid-padding-x">
 			<div class="large-12 cell">
-				<h1 class="text-center">Index</h1>
+				<h1 class="text-center">last.fm</h1>
 			</div>
 		</div>
 		<div class="grid-x grid-padding-x">
 			<div class="large-12 cell">
-				<p>Lista album, söka, sortera ifrån lastfm API</p>
+				<h3 th:text="${title}"></h3>
+
+				<!-- 
+				<div th:each="album:${albumList}">
+					<img th:src="${album.imageReference}"></img>
+					<p th:text="${album.name}"></p>
+					<p th:text="${album.artist}"></p>
+					<a th:href="${album.url}">last.fm link</a>
+				</div>
+ -->
+
+				<div class="flex-box">
+					<div th:each="album:${albumList}" class="album">
+						<div class="album-thumbnail">
+							<a th:href="${album.url}"><img th:src="${album.imageReference}"></img></a>
+						</div>
+						<h2 th:text="${album.name}" class="album-title"></h2>
+						<p th:text="${album.artist}" class="artist"></p>
+					</div>
+				</div>
+
 			</div>
 		</div>
-		<!--  -->
+	</div>
+	<!--  -->
 	</div>
 </body>
 </html>
