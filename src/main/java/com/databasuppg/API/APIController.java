@@ -1,19 +1,21 @@
 package com.databasuppg.API;
 
-import java.io.*;
-import java.net.HttpURLConnection;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.net.URL;
-import java.util.ArrayList;
-
-import com.databasuppg.config.Config;
+import org.springframework.web.util.UriUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+
+
 
 public class APIController {
 
@@ -32,110 +34,128 @@ public class APIController {
         }
     }
 
+    public ArrayList<Album> searchArtist(String artist) {
+        ArrayList<Album> results = new ArrayList<>();
 
-//    public static void main(String[] args) {
-//
-//        Config conf = new Config();
-//        APIController c = new APIController(conf.getAPIKey());
-//
-//
-//        try {
-//            ArrayList<Album> albumResults = c.searchAlbum("believe", 10);
-//            for(Track track : c.getTracks(albumResults.get(0))) {
-//                System.out.println(track.toString());
-//            }
-//
-//        } catch (SAXException | IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+        try {
+           Document artistResults = APIgetTopAlbums(artist);
+           artistResults.normalize();
 
+           Element element = artistResults.getDocumentElement();
+           NodeList nodes = element.getElementsByTagName("album");
 
-    public ArrayList<Album> searchAlbum(String name, int limit) throws IOException, SAXException {
-         ArrayList<Album> results = new ArrayList<>();
+           // get correct name if typed wrong.
+           artist = element.getElementsByTagName("topalbums").item(0).
+                   getAttributes().getNamedItem("artist").getTextContent();
 
-        // use API method album.search
-        // https://www.last.fm/api/show/album.search
-        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", name, limit, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+           for(int i=0; i<nodes.getLength(); i++) {
+               Node node = nodes.item(i);
 
-        // gets the nodes of the album tag
-        Document doc = documentBuilder.parse(con.getInputStream());
-        doc.getDocumentElement().normalize();
+               if(node.getNodeType() == Node.ELEMENT_NODE) {
+                   Element currentElement = (Element) node;
+                   String artistName = artist;
+                   String albumName = currentElement.getElementsByTagName("name").item(0).getTextContent();
+                   String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
+                   String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
+                   ArrayList<Track> tracks = getTrack(
+                           UriUtils.encode(albumName,"utf-8"),
+                           UriUtils.encode(artistName, "utf-8"));
 
-        // gets the nodes of the album tag
-        NodeList result = doc.getElementsByTagName("album");
-
-        // loops through every node in album element
-        for(int i=0; i<result.getLength(); i++) {
-
-            // gets the current element
-            Node node = result.item(i);
-
-            // gets the value if the node is of type element
-            if(node.getNodeType() == Node.ELEMENT_NODE) {
-                Element element = (Element) node;
-
-                Album temp =  new Album(
-                                element.getElementsByTagName("name").item(0).getTextContent(),
-                                element.getElementsByTagName("artist").item(0).getTextContent(),
-                                element.getElementsByTagName("url").item(0).getTextContent(),
-                                element.getElementsByTagName("image").item(2).getTextContent()  // Three image sizes are available.
-                                                                                                      //  index* 1: small, 2: medium, 3: large
-                );
-                results.add(temp);
-            }
+                   results.add(new Album(albumName, artistName, url, image, tracks));
+               }
+           }
+        } catch(IOException | SAXException e) {
+            System.err.println(e.getMessage());
         }
         return results;
-
     }
 
-    public ArrayList<Track> getTracks(Album album) throws IOException, SAXException {
+    public ArrayList<Album> searchAlbum(String albumName, int limit) {
 
-        ArrayList<Track> results = new ArrayList<>();
-        String albumName = album.getName();
-        String artistName = album.getArtist();
+        ArrayList<Album> results = new ArrayList<>();
 
-        // use API method album.getInfo
-        // https://www.last.fm/api/show/album.getInfo
-        URL url = new URL(root + String.format("?method=album.getinfo&artist=%s&album=%s&api_key=%s",artistName, albumName, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        try {
+            Document albumResults = APIsearchAlbum(albumName, limit);
+            albumResults.normalize();
 
-        Document doc = documentBuilder.parse(con.getInputStream());
-        doc.getDocumentElement().normalize();
+            Element element = albumResults.getDocumentElement();
+            NodeList nodes = element.getElementsByTagName("album");
 
-        // gets the nodes of the tracks tag
-        NodeList result = doc.getElementsByTagName("track");
 
-        //TODO unified function for getting child elements
-        for(int i=0; i<result.getLength(); i++) {
-            Node node = result.item(i);
+            for(int i=0; i<nodes.getLength(); i++) {
+                Node node = nodes.item(i);
 
-            if(node.getNodeType() == Node.ELEMENT_NODE) {
-                Element element = (Element) node;
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element currentElement = (Element) node;
+                    String album = currentElement.getElementsByTagName("name").item(0).getTextContent();
+                    String artist = currentElement.getElementsByTagName("artist").item(0).getTextContent();
+                    String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
+                    String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
+                    ArrayList<Track> tracks = getTrack(
+                            UriUtils.encode(album, "utf-8"),
+                            UriUtils.encode(artist, "utf-8"));
 
-                Track temp = new Track(
-                        element.getElementsByTagName("name").item(0).getTextContent(),
-                        Integer.parseInt(element.getElementsByTagName("duration").item(0).getTextContent()),
-                        element.getElementsByTagName("url").item(0).getTextContent()
-                );
-
-                results.add(temp);
-
+                    results.add(new Album(album, artist, url, image, tracks));
+                }
             }
-
-
+        } catch(IOException | SAXException e) {
+            e.printStackTrace();
         }
-
-       return results;
+        return results;
     }
 
-    //TODO implement this to prevent redundant code.
-//    private Object getChildElements(String tag) {
+    private ArrayList<Track> getTrack(String album, String artist) throws IOException, SAXException {
+        ArrayList<Track> result = new ArrayList<>();
 
-//        return Object;
-//    }
+        Document doc = APIgetAlbumInfo(album, artist);
+        doc.normalize();
+
+        Element element = doc.getDocumentElement();
+        NodeList nodes = element.getElementsByTagName("track");
+
+        for(int i=0; i<nodes.getLength(); i++) {
+            Node node = nodes.item(i);
+
+            if(node.getNodeType() == node.ELEMENT_NODE) {
+               Element nodeElement = (Element) node;
+               String name = nodeElement.getElementsByTagName("name").item(0).getTextContent();
+               int duration = Integer.parseInt(nodeElement.getElementsByTagName("duration").item(0).getTextContent());
+               String url = nodeElement.getElementsByTagName("url").item(0).getTextContent();
+               result.add(new Track(name, duration, url));
+            }
+        }
+        return result;
+    }
+
+    // API methods
+    //TODO Implement page variable
+    private Document APIsearchAlbum(String album, int limit) throws IOException, SAXException {
+//        album = UriUtils.encode(album, "utf-8");
+        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", album, limit, this.key));
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        return documentBuilder.parse(con.getInputStream());
+    }
+
+    private Document APIgetAlbumInfo(String album, String artist) throws IOException, SAXException {
+        // album = UriUtils.encode(album, "utf-8");
+        // artist = UriUtils.encode(artist, "utf-8");
+        URL url = new URL(root + String.format("?method=album.getinfo&artist=%s&album=%s&api_key=%s", artist, album, this.key));
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        return documentBuilder.parse(con.getInputStream());
+    }
+
+    private Document APIgetTopAlbums(String artist) throws IOException, SAXException {
+        // artist = UriUtils.encode(artist, "utf-8");
+        URL url = new URL(root + String.format("?method=artist.gettopalbums&artist=%s&autocorrect=1&api_key=%s", artist, this.key));
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        return documentBuilder.parse(con.getInputStream());
+    }
+
+
 
 
 
 }
+
+
+

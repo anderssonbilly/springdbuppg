@@ -39,13 +39,6 @@ public class LastfmController {
 	}
 
 	private ArrayList<Album> apiSearch(String term) {
-		try {
-			return apiController.searchAlbum(term, 25);
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (SAXException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return apiController.searchAlbum(term, 25);
 	}
 }
