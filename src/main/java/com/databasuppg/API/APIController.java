@@ -27,7 +27,6 @@ public class APIController {
     public APIController(String key) {
         this.key = key;
 
-
         try {
             this.documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
         } catch(ParserConfigurationException e) {
@@ -35,13 +34,40 @@ public class APIController {
         }
     }
 
-    public static void main(String args[]) {
-        APIController c = new APIController("e785b0c4c020c29bc7a9968603aac839");
-        int count = 1;
-        for(Album album : c.searchAlbum("Good", 20)) {
-            System.out.println(count + ": " + album.toString());
-            count++;
+    public ArrayList<Album> searchArtist(String artist) {
+        ArrayList<Album> results = new ArrayList<>();
+
+        try {
+           Document artistResults = APIgetTopAlbums(artist);
+           artistResults.normalize();
+
+           Element element = artistResults.getDocumentElement();
+           NodeList nodes = element.getElementsByTagName("album");
+
+           // get correct name if typed wrong.
+           artist = element.getElementsByTagName("topalbums").item(0).
+                   getAttributes().getNamedItem("artist").getTextContent();
+
+           for(int i=0; i<nodes.getLength(); i++) {
+               Node node = nodes.item(i);
+
+               if(node.getNodeType() == Node.ELEMENT_NODE) {
+                   Element currentElement = (Element) node;
+                   String artistName = artist;
+                   String albumName = currentElement.getElementsByTagName("name").item(0).getTextContent();
+                   String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
+                   String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
+                   ArrayList<Track> tracks = getTrack(
+                           UriUtils.encode(albumName,"utf-8"),
+                           UriUtils.encode(artistName, "utf-8"));
+
+                   results.add(new Album(albumName, artistName, url, image, tracks));
+               }
+           }
+        } catch(IOException | SAXException e) {
+            System.err.println(e.getMessage());
         }
+        return results;
     }
 
     public ArrayList<Album> searchAlbum(String albumName, int limit) {
@@ -61,35 +87,27 @@ public class APIController {
 
                 if(node.getNodeType() == Node.ELEMENT_NODE) {
                     Element currentElement = (Element) node;
-
-                    String name = UriUtils.encode(currentElement.getElementsByTagName("name").item(0).getTextContent(), "utf-8");
-                    String artist = UriUtils.encode(currentElement.getElementsByTagName("artist").item(0).getTextContent(), "utf-8");
+                    String album = currentElement.getElementsByTagName("name").item(0).getTextContent();
+                    String artist = currentElement.getElementsByTagName("artist").item(0).getTextContent();
                     String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
-                    String image = currentElement.getElementsByTagName("image").item(1).getTextContent();
-                    ArrayList<Track> tracks = getTrack(name, artist);
+                    String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
+                    ArrayList<Track> tracks = getTrack(
+                            UriUtils.encode(album, "utf-8"),
+                            UriUtils.encode(artist, "utf-8"));
 
-                    Document temp = APIgetAlbumInfo(name, artist);
-                    temp.normalize();
-
-                    results.add(new Album(name, artist, url, image, tracks));
-
+                    results.add(new Album(album, artist, url, image, tracks));
                 }
             }
-
-
         } catch(IOException | SAXException e) {
             e.printStackTrace();
         }
-
-
         return results;
     }
 
-    private ArrayList<Track> getTrack(String albumName, String artistName) throws IOException, SAXException {
-
+    private ArrayList<Track> getTrack(String album, String artist) throws IOException, SAXException {
         ArrayList<Track> result = new ArrayList<>();
 
-        Document doc = APIgetAlbumInfo(albumName, artistName);
+        Document doc = APIgetAlbumInfo(album, artist);
         doc.normalize();
 
         Element element = doc.getDocumentElement();
@@ -100,39 +118,39 @@ public class APIController {
 
             if(node.getNodeType() == node.ELEMENT_NODE) {
                Element nodeElement = (Element) node;
-
                String name = nodeElement.getElementsByTagName("name").item(0).getTextContent();
                int duration = Integer.parseInt(nodeElement.getElementsByTagName("duration").item(0).getTextContent());
                String url = nodeElement.getElementsByTagName("url").item(0).getTextContent();
-
-               name = name.replaceAll("&", "%26");
-
                result.add(new Track(name, duration, url));
-
             }
         }
-
         return result;
     }
 
     // API methods
     //TODO Implement page variable
-    private Document APIsearchAlbum(String name, int limit) throws IOException, SAXException {
-        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", name, limit, this.key));
+    private Document APIsearchAlbum(String album, int limit) throws IOException, SAXException {
+//        album = UriUtils.encode(album, "utf-8");
+        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", album, limit, this.key));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
     }
 
     private Document APIgetAlbumInfo(String album, String artist) throws IOException, SAXException {
-        URL url = new URL(root + String.format("?method=album.getinfo&api_key=%s&artist=%s&album=%s", this.key, artist, album));
+        // album = UriUtils.encode(album, "utf-8");
+        // artist = UriUtils.encode(artist, "utf-8");
+        URL url = new URL(root + String.format("?method=album.getinfo&artist=%s&album=%s&api_key=%s", artist, album, this.key));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
     }
 
-    private Document APIsearchArtist(String artist) {
-
-        return documentBuilder.newDocument();
+    private Document APIgetTopAlbums(String artist) throws IOException, SAXException {
+        // artist = UriUtils.encode(artist, "utf-8");
+        URL url = new URL(root + String.format("?method=artist.gettopalbums&artist=%s&autocorrect=1&api_key=%s", artist, this.key));
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        return documentBuilder.parse(con.getInputStream());
     }
+
 
 
 
