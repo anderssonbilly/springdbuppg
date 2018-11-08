@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml"
 	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
 	th:include="fragments/layout :: page" lang="en" dir="ltr">
 <head>
 <title>Index</title>
@@ -17,22 +18,14 @@
 			<div class="large-12 cell">
 				<h3 th:text="${title}"></h3>
 
-				<!-- 
-				<div th:each="album:${albumList}">
-					<img th:src="${album.imageReference}"></img>
-					<p th:text="${album.name}"></p>
-					<p th:text="${album.artist}"></p>
-					<a th:href="${album.url}">last.fm link</a>
-				</div>
- -->
-
 				<div class="flex-box">
 					<div th:each="album:${albumList}" class="album">
 						<div class="album-thumbnail">
-							<a th:href="${album.url}"><img th:src="${album.imageReference}"></img></a>
+							<a th:href="${album.url}"><img th:src="${album.imageReference}"></img><img th:if="${album.imageReference.isEmpty()}" src="img/noimage.png"></img></a>
 						</div>
 						<h2 th:text="${album.name}" class="album-title"></h2>
 						<p th:text="${album.artist}" class="artist"></p>
+						<a sec:authorize="isAuthenticated()" href="#">Add to collection</a>
 					</div>
 				</div>
 
