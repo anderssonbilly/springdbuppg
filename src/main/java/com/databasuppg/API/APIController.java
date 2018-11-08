@@ -1,9 +1,6 @@
 package com.databasuppg.API;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.web.util.UriUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -40,17 +37,19 @@ public class APIController {
 
     public static void main(String args[]) {
         APIController c = new APIController("e785b0c4c020c29bc7a9968603aac839");
-        for(Album album : c.getAlbum("Good", 20)) {
-            System.out.println(album.toString());
+        int count = 1;
+        for(Album album : c.searchAlbum("Good", 20)) {
+            System.out.println(count + ": " + album.toString());
+            count++;
         }
     }
 
-    public ArrayList<Album> getAlbum(String albumName, int limit) {
+    public ArrayList<Album> searchAlbum(String albumName, int limit) {
 
         ArrayList<Album> results = new ArrayList<>();
 
         try {
-            Document albumResults = searchAlbum(albumName, limit);
+            Document albumResults = APIsearchAlbum(albumName, limit);
             albumResults.normalize();
 
             Element element = albumResults.getDocumentElement();
@@ -59,16 +58,17 @@ public class APIController {
 
             for(int i=0; i<nodes.getLength(); i++) {
                 Node node = nodes.item(i);
-                Element currentElement = (Element) node;
-                if(node.getNodeType() == Node.ELEMENT_NODE) {
 
-                    String name = currentElement.getElementsByTagName("name").item(0).getTextContent();
-                    String artist = currentElement.getElementsByTagName("artist").item(0).getTextContent();
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element currentElement = (Element) node;
+
+                    String name = UriUtils.encode(currentElement.getElementsByTagName("name").item(0).getTextContent(), "utf-8");
+                    String artist = UriUtils.encode(currentElement.getElementsByTagName("artist").item(0).getTextContent(), "utf-8");
                     String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
                     String image = currentElement.getElementsByTagName("image").item(1).getTextContent();
                     ArrayList<Track> tracks = getTrack(name, artist);
 
-                    Document temp = getAlbumInfo(name, artist);
+                    Document temp = APIgetAlbumInfo(name, artist);
                     temp.normalize();
 
                     results.add(new Album(name, artist, url, image, tracks));
@@ -89,7 +89,7 @@ public class APIController {
 
         ArrayList<Track> result = new ArrayList<>();
 
-        Document doc = getAlbumInfo(albumName, artistName);
+        Document doc = APIgetAlbumInfo(albumName, artistName);
         doc.normalize();
 
         Element element = doc.getDocumentElement();
@@ -105,38 +105,35 @@ public class APIController {
                int duration = Integer.parseInt(nodeElement.getElementsByTagName("duration").item(0).getTextContent());
                String url = nodeElement.getElementsByTagName("url").item(0).getTextContent();
 
+               name = name.replaceAll("&", "%26");
+
                result.add(new Track(name, duration, url));
 
             }
-
-
-
         }
 
         return result;
-
     }
 
     // API methods
     //TODO Implement page variable
-    private Document searchAlbum(String name, int limit) throws IOException, SAXException {
-        String urlString = root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", name, limit, this.key);
-        urlString = urlString.replaceAll(" ", "%20");
-
-        URL url = new URL(urlString);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-
-    }
-
-    private Document getAlbumInfo(String album, String artist) throws IOException, SAXException {
-        String urlString = root + String.format("?method=album.getinfo&api_key=%s&artist=%s&album=%s", this.key, artist, album);
-        urlString = urlString.replaceAll(" ", "%20");
-
-        URL url = new URL(urlString);
+    private Document APIsearchAlbum(String name, int limit) throws IOException, SAXException {
+        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", name, limit, this.key));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
     }
+
+    private Document APIgetAlbumInfo(String album, String artist) throws IOException, SAXException {
+        URL url = new URL(root + String.format("?method=album.getinfo&api_key=%s&artist=%s&album=%s", this.key, artist, album));
+        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        return documentBuilder.parse(con.getInputStream());
+    }
+
+    private Document APIsearchArtist(String artist) {
+
+        return documentBuilder.newDocument();
+    }
+
 
 
 
