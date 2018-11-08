@@ -46,6 +46,10 @@
 	margin-right: auto;
 }
 
+.album:hover {
+	background-color: #e6e6e6;
+}
+
 .album-thumbnail {
 	display: block;
 	position: relative;
