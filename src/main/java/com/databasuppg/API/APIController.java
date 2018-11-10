@@ -34,11 +34,45 @@ public class APIController {
         }
     }
 
-    public ArrayList<Album> searchArtist(String artist) {
+    public ArrayList<Album> getTopAlbums(String genre, int limit, int page) {
         ArrayList<Album> results = new ArrayList<>();
 
         try {
-           Document artistResults = APIgetTopAlbums(artist);
+            Document artistResults = APIgetTopAlbums("genre", limit, page);
+            artistResults.normalize();
+
+            Element element = artistResults.getDocumentElement();
+            NodeList nodes = element.getElementsByTagName("album");
+
+            for(int i=0; i<nodes.getLength(); i++) {
+                Node node = nodes.item(i);
+
+                if(node.getNodeType() == Node.ELEMENT_NODE) {
+                    Element currentElement = (Element) node;
+                    Element temp = (Element) currentElement.getElementsByTagName("artist").item(0);
+
+                    String artistName = temp.getElementsByTagName("name").item(0).getTextContent();
+                    String albumName = currentElement.getElementsByTagName("name").item(0).getTextContent();
+                    String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
+                    String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
+                    ArrayList<Track> tracks = getTrack(
+                            UriUtils.encode(albumName,"utf-8"),
+                            UriUtils.encode(artistName, "utf-8"));
+
+                    results.add(new Album(albumName, artistName, url, image, tracks));
+                }
+            }
+        } catch(IOException | SAXException e) {
+            System.err.println(e.getMessage());
+        }
+        return results;
+    }
+
+    public ArrayList<Album> searchArtist(String artist, int limit, int page) {
+        ArrayList<Album> results = new ArrayList<>();
+
+        try {
+           Document artistResults = APIgetTopAlbums(artist, limit, page);
            artistResults.normalize();
 
            Element element = artistResults.getDocumentElement();
@@ -70,12 +104,12 @@ public class APIController {
         return results;
     }
 
-    public ArrayList<Album> searchAlbum(String albumName, int limit) {
+    public ArrayList<Album> searchAlbum(String albumName, int limit, int page) {
 
         ArrayList<Album> results = new ArrayList<>();
 
         try {
-            Document albumResults = APIsearchAlbum(albumName, limit);
+            Document albumResults = APIsearchAlbum(albumName, limit, page);
             albumResults.normalize();
 
             Element element = albumResults.getDocumentElement();
@@ -128,10 +162,8 @@ public class APIController {
     }
 
     // API methods
-    //TODO Implement page variable
-    private Document APIsearchAlbum(String album, int limit) throws IOException, SAXException {
-//        album = UriUtils.encode(album, "utf-8");
-        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&api_key=%s", album, limit, this.key));
+    private Document APIsearchAlbum(String album, int limit, int page) throws IOException, SAXException {
+        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&page=%s&api_key=%s", album, limit, page, this.key));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
     }
@@ -144,12 +176,13 @@ public class APIController {
         return documentBuilder.parse(con.getInputStream());
     }
 
-    private Document APIgetTopAlbums(String artist) throws IOException, SAXException {
+    private Document APIgetTopAlbums(String genre, int limit, int page) throws IOException, SAXException {
         // artist = UriUtils.encode(artist, "utf-8");
-        URL url = new URL(root + String.format("?method=artist.gettopalbums&artist=%s&autocorrect=1&api_key=%s", artist, this.key));
+        URL url = new URL(root + String.format("?method=tag.gettopalbums&tag=%s&limit=%s&page=%s&api_key=%s", genre, limit, page, this.key));
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         return documentBuilder.parse(con.getInputStream());
     }
+
 
 
 
