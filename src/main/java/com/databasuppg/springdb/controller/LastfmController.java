@@ -1,6 +1,5 @@
 package com.databasuppg.springdb.controller;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +8,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
-import org.xml.sax.SAXException;
 
 import com.databasuppg.API.APIController;
 import com.databasuppg.API.Album;
@@ -26,6 +24,8 @@ public class LastfmController {
 		modelAndView.addObject("title", "Top 25 Albums");
 		modelAndView.addObject(apiSearch("top 10"));
 		
+		ArrayList<Album> a = apiSearch("top 10");
+		
 		return modelAndView;
 	}
 
@@ -34,11 +34,17 @@ public class LastfmController {
 		ModelAndView modelAndView = new ModelAndView("lastfm");
 		modelAndView.addObject("title", "Search result for: \"" + search + "\"");
 		modelAndView.addObject(apiSearch(search));
-
+	
 		return modelAndView;
-	}
-
+	}	
+	
 	private ArrayList<Album> apiSearch(String term) {
 		return apiController.searchAlbum(term, 25);
+	}
+	
+	private String getGenre() {
+		
+		
+		return "";
 	}
 }
