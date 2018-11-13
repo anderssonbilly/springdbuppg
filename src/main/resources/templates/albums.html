@@ -72,8 +72,23 @@
 
 				$(".addToCollection").click(function(event) {
 					event.preventDefault();
-					//MAKE AJAX CALL
+					
 					console.log($(this).attr("data-album"));
+					
+					$.ajax({
+			             type: "POST",
+			             contentType: "application/json",
+			             url: "/addToCollection",
+			             data: JSON.stringify($(this).attr("data-album")),
+			             dataType: 'json',
+			             timeout: 500000,
+			             success: function (data) {
+			                 console.log("success: " + data);
+			             },
+			             error: function (e) {
+			            	 console.log("Error: " + e);
+			             }
+					})
 				});
 
 			});

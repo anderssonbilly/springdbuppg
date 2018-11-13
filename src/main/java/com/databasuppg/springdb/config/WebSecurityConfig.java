@@ -38,13 +38,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
-				.antMatchers("/", "/home", "/register", "/login", "/collection", "/lastfm", "/css/**", "/js/**", "/img/**")
+				.antMatchers(
+						"/", "/home", "/register", "/login", "/collection", "/lastfm",
+						"/addToCollection","/removeFromCollection", "/createPlaylist", "/addToPlaylist", "/updatePlaylist", "/removePlaylist",
+						"/css/**", "/js/**", "/img/**")
 					.permitAll()
 					.anyRequest()
 					.hasAnyRole("ADMIN","USER")
 				.antMatchers("/admin")
 					.hasRole("ADMIN")
-				.antMatchers("/collection","/playlists")
+				.antMatchers("/collection","/playlists", "/addToCollection","/removeFromCollection", "/createPlaylist", "/addToPlaylist", "/updatePlaylist", "/removePlaylist")
 					.authenticated()
 					.and()
 				.formLogin()
