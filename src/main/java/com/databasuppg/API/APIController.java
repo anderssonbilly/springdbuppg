@@ -11,8 +11,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 
 
@@ -20,12 +18,13 @@ import java.util.ArrayList;
 public class APIController {
 
     private String key;
-    private String root = "http://ws.audioscrobbler.com/2.0/";
     private DocumentBuilder documentBuilder;
+    private APIHandler api;
 
 
     public APIController(String key) {
         this.key = key;
+        this.api = new APIHandler(key);
 
         try {
             this.documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
@@ -38,7 +37,7 @@ public class APIController {
         ArrayList<Album> results = new ArrayList<>();
 
         try {
-            Document artistResults = APIgetTopAlbums("genre", limit, page);
+            Document artistResults = api.getTopAlbums("genre", limit, page);
             artistResults.normalize();
 
             Element element = artistResults.getDocumentElement();
@@ -72,7 +71,7 @@ public class APIController {
         ArrayList<Album> results = new ArrayList<>();
 
         try {
-           Document artistResults = APIgetTopAlbums(artist, limit, page);
+           Document artistResults = api.getTopAlbums(artist, limit, page);
            artistResults.normalize();
 
            Element element = artistResults.getDocumentElement();
@@ -109,7 +108,7 @@ public class APIController {
         ArrayList<Album> results = new ArrayList<>();
 
         try {
-            Document albumResults = APIsearchAlbum(albumName, limit, page);
+            Document albumResults = api.searchAlbum(albumName, limit, page);
             albumResults.normalize();
 
             Element element = albumResults.getDocumentElement();
@@ -141,7 +140,7 @@ public class APIController {
     private ArrayList<Track> getTrack(String album, String artist) throws IOException, SAXException {
         ArrayList<Track> result = new ArrayList<>();
 
-        Document doc = APIgetAlbumInfo(album, artist);
+        Document doc = api.getAlbumInfo(album, artist);
         doc.normalize();
 
         Element element = doc.getDocumentElement();
@@ -162,26 +161,6 @@ public class APIController {
     }
 
     // API methods
-    private Document APIsearchAlbum(String album, int limit, int page) throws IOException, SAXException {
-        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&page=%s&api_key=%s", album, limit, page, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-    }
-
-    private Document APIgetAlbumInfo(String album, String artist) throws IOException, SAXException {
-        // album = UriUtils.encode(album, "utf-8");
-        // artist = UriUtils.encode(artist, "utf-8");
-        URL url = new URL(root + String.format("?method=album.getinfo&artist=%s&album=%s&api_key=%s", artist, album, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-    }
-
-    private Document APIgetTopAlbums(String genre, int limit, int page) throws IOException, SAXException {
-        // artist = UriUtils.encode(artist, "utf-8");
-        URL url = new URL(root + String.format("?method=tag.gettopalbums&tag=%s&limit=%s&page=%s&api_key=%s", genre, limit, page, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-    }
 
 
 
