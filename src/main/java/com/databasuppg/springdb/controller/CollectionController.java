@@ -1,5 +1,6 @@
 package com.databasuppg.springdb.controller;
 
+import java.sql.*;
 import java.util.ArrayList;
 
 import javax.annotation.security.RolesAllowed;
@@ -64,6 +65,42 @@ public class CollectionController {
 	public boolean removePlaylist(Model model, String playlistName) {
 		System.out.println(playlistName);
 		return true;
+	}
+
+	public ArrayList<Track> getTracksFromUser(String username) {
+		Connection conn;
+		ResultSet result;
+		CallableStatement statement;
+        ArrayList<Track> tracks = new ArrayList<>();
+
+		try {
+			conn = DriverManager.getConnection("jdbc:mysql://217.208.107.210:3301/dbuppgift", "uppgift", "password");
+
+			String query = "CALL getSongsForUser(?)";
+			statement = conn.prepareCall(query);
+			statement.setString(1, username);
+
+			result = statement.executeQuery();
+
+
+
+			while(result.next()) {
+                System.out.println(result.getString("artist"));
+                tracks.add(new Track(
+                        result.getString("title"),
+                        result.getString("artist"),
+                        result.getInt("length")));
+
+            }
+
+		} catch(SQLException e) {
+			System.err.println(e.getMessage());
+		}
+
+		return tracks;
+	}
+
+	public static void main(String[] args) {
 	}
 	
 	@RolesAllowed("USER")
