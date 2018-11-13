@@ -11,8 +11,8 @@ public abstract class WebMvcConfig implements WebMvcConfigurer  {
 	public void addViewControllers(ViewControllerRegistry registry) {
 		registry.addViewController("/").setViewName("index");
 		registry.addViewController("/home").setViewName("index");
-		registry.addViewController("/lastfm").setViewName("lastfm");
-		registry.addViewController("/collection").setViewName("collection");
+		registry.addViewController("/lastfm").setViewName("albums");
+		registry.addViewController("/collection").setViewName("albums");
 		registry.addViewController("/playlist").setViewName("playlist");
 		registry.addViewController("/login").setViewName("login");
 		registry.addViewController("/register").setViewName("register");

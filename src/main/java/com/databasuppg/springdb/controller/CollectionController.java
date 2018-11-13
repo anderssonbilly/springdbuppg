@@ -2,19 +2,33 @@ package com.databasuppg.springdb.controller;
 
 import java.util.ArrayList;
 
+import javax.annotation.security.RolesAllowed;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.databasuppg.API.APIController;
 import com.databasuppg.API.Track;
 
 @Controller
 public class CollectionController {
 
+	@Autowired
+	private APIController apiController;
+
+	
 	@RequestMapping(value = "/addToCollection", method = RequestMethod.POST)
 	public boolean addToCollection(Model model, String album) {
+		System.out.println(album);
+		return true;
+	}
+	
+	@RequestMapping(value = "/removeFromCollection", method = RequestMethod.POST)
+	public boolean removeFromCollection(Model model, String album) {
 		System.out.println(album);
 		return true;
 	}
@@ -35,5 +49,17 @@ public class CollectionController {
 	public boolean createPlayList(Model model, ArrayList<Track> playlist) {
 		System.out.println(playlist);
 		return true;
+	}
+	
+	@RolesAllowed("USER")
+	@RequestMapping("/collection")
+	public ModelAndView collection(Model model) {
+		ModelAndView modelAndView = new ModelAndView("albums");
+		modelAndView.addObject("title","Collection");
+		modelAndView.addObject("collection",true);
+		
+		modelAndView.addObject(apiController.searchAlbum("test", 25, 1));
+		
+		return modelAndView;
 	}
 }

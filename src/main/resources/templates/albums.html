@@ -18,6 +18,14 @@
 			<div class="large-12 cell">
 				<h3 th:text="${title}"></h3>
 
+				<div th:if="${collection} == true">
+					<p>Inloggad</p>
+				</div>
+				<div th:if="${collection} == false">
+					<p>Ej inloggat</p>
+				</div>
+				
+				
 				<div class="flex-box">
 					<div th:each="album, i:${albumList}" class="album">
 						<div class="album-thumbnail">
@@ -27,8 +35,13 @@
 						</div>
 						<h2 th:text="${album.name}" class="album-title"></h2>
 						<p th:text="${album.artist}" class="artist"></p>
-						<a th:data-album="${album.name}" sec:authorize="isAuthenticated()"
+						<a th:unless="${collection} == true" th:data-album="${album.name}" sec:authorize="isAuthenticated()"
 							class="addToCollection" href="#">Add to collection</a>
+							
+						<a th:if="${collection} == true" th:data-album="${album.name}" sec:authorize="isAuthenticated()"
+							class="removeFromCollection" href="#">Remove from collection</a>
+						
+
 						<div class="reveal" th:id="tracks + ${i.count}" data-reveal>
 
 							<h2 th:text="${album.name}"></h2>
@@ -50,11 +63,16 @@
 			</div>
 		</div>
 		<script type="text/javascript">
-			$(function() {
+			function r(f) {
+				/in/.test(document.readyState) ? setTimeout('r(' + f + ')', 9)
+						: f()
+			}
+
+			r(function() {
 
 				$(".addToCollection").click(function(event) {
 					event.preventDefault();
-//MAKE AJAX CALL
+					//MAKE AJAX CALL
 					console.log($(this).attr("data-album"));
 				});
 

@@ -20,7 +20,7 @@ public class LastfmController {
 
 	@RequestMapping("/lastfm")
 	public ModelAndView lastfm(Model model) {
-		ModelAndView modelAndView = new ModelAndView("lastfm");
+		ModelAndView modelAndView = new ModelAndView("albums");
 		modelAndView.addObject("title", "Top 25 Albums");
 		modelAndView.addObject(apiSearch("top 10"));
 		
@@ -31,7 +31,7 @@ public class LastfmController {
 
 	@RequestMapping(value = "/lastfm", method = RequestMethod.POST)
 	public ModelAndView search(Model model, String search) {
-		ModelAndView modelAndView = new ModelAndView("lastfm");
+		ModelAndView modelAndView = new ModelAndView("albums");
 		modelAndView.addObject("title", "Search result for: \"" + search + "\"");
 		modelAndView.addObject(apiSearch(search));
 	
@@ -39,12 +39,12 @@ public class LastfmController {
 	}	
 	
 	private ArrayList<Album> apiSearch(String term) {
-		return apiController.searchAlbum(term, 25);
+		return apiController.searchAlbum(term, 25, 1);
 	}
 	
-	private String getGenre() {
-		
-		
-		return "";
-	}
+//	private String getGenre() {
+//	
+//		
+//		return "";
+//	}
 }

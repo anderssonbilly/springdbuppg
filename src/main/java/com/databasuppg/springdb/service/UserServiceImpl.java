@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.databasuppg.springdb.dao.RoleEntity;
 import com.databasuppg.springdb.dao.RoleRepository;
 import com.databasuppg.springdb.dao.UserEntity;
 import com.databasuppg.springdb.dao.UserRepository;
@@ -21,8 +22,10 @@ public class UserServiceImpl implements IUserService{
 
     @Override
     public void save(UserEntity user) {
+    	HashSet<RoleEntity> userRole = new HashSet<RoleEntity>();
+    	userRole.add(roleRepository.findByName("USER"));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-        user.setRoles(new HashSet<>(roleRepository.findAll()));
+        user.setRoles(userRole);
         userRepository.save(user);
     }
 
