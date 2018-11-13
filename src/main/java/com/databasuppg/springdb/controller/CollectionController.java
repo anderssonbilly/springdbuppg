@@ -44,32 +44,6 @@ public class CollectionController {
 		return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
 	}
 	
-	@RequestMapping(value = "/createPlaylist", method = RequestMethod.POST)
-	public ModelAndView createPlayList(Model model, String playlistName) {
-		ModelAndView modelAndView = new ModelAndView("/playlists");
-		return modelAndView;
-	}
-	
-	@RequestMapping(value = "/addToPlaylist", method = RequestMethod.POST)
-	public ResponseEntity<Boolean> removeFromCollection(@RequestBody String playlist, @RequestBody String track) {
-		
-		System.out.println(playlist + " " + track);
-		
-		return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
-	}
-
-	@RequestMapping(value = "/updatePlaylist", method = RequestMethod.POST)
-	public boolean createPlayList(Model model, ArrayList<Track> playlist) {
-		System.out.println(playlist);
-		return true;
-	}
-	
-	@RequestMapping(value = "/removePlaylist", method = RequestMethod.POST)
-	public boolean removePlaylist(Model model, String playlistName) {
-		System.out.println(playlistName);
-		return true;
-	}
-	
 	@RolesAllowed("USER")
 	@RequestMapping("/collection")
 	public ModelAndView collection(Model model) {

@@ -39,15 +39,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeRequests()
 				.antMatchers(
-						"/", "/home", "/register", "/login", "/collection", "/lastfm",
-						"/addToCollection","/removeFromCollection", "/createPlaylist", "/addToPlaylist", "/updatePlaylist", "/removePlaylist",
+						"/", "/home", "/register", "/login", "/collection", "/playlist", "/lastfm",
+						"/addToCollection","/removeFromCollection", 
+						"/createPlaylist", "/addToPlaylist", "/updatePlaylist", "/removePlaylist", "/getPlaylist",
 						"/css/**", "/js/**", "/img/**")
 					.permitAll()
 					.anyRequest()
 					.hasAnyRole("ADMIN","USER")
 				.antMatchers("/admin")
 					.hasRole("ADMIN")
-				.antMatchers("/collection","/playlists", "/addToCollection","/removeFromCollection", "/createPlaylist", "/addToPlaylist", "/updatePlaylist", "/removePlaylist")
+				.antMatchers("/collection","/playlist", "/addToCollection","/removeFromCollection", "/createPlaylist", "/addToPlaylist","/removeFromPlaylist", "/updatePlaylist", "/removePlaylist", "/getPlaylist")
 					.authenticated()
 					.and()
 				.formLogin()

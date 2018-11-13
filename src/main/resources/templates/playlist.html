@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org"
+	xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
+	th:include="fragments/layout :: page" lang="en" dir="ltr">
+<head>
+<title>Index</title>
+</head>
+<body>
+	<div th:fragment="content">
+		<!--  -->
+		<div class="grid-x grid-padding-x">
+			<div class="large-4 cell"></div>
+			<div class="large-4 cell">
+				<h1 class="text-center">Playlists</h1>
+
+				<select id="playlists">
+					<option th:each="playlist : ${playlists}" th:value="${playlist.id}"
+						th:text="${playlist.name}"></option>
+				</select>
+				<button class="button expanded" id="select">Select</button>
+			</div>
+			<div class="large-4 cell"></div>
+		</div>
+		<div class="grid-x grid-padding-x">
+			<div class="large-4 cell"></div>
+			<div class="large-4 cell">
+
+				<label>New Playlist:<input
+					name="newPlaylist" type="text" placeholder="playlist name" id="newPlaylist">
+				</label>
+				<p>
+					<button id="createPlaylist" type="submit" class="button expanded">Create</button>
+				</p>
+
+			</div>
+			<div class="large-4 cell"></div>
+		</div>
+		<div class="grid-x grid-padding-x">
+			<div class="large-4 cell"></div>
+			<div class="large-4 cell">
+				<ul id="sortable">
+					<!-- <li class="ui-state-default">Item 1</li> -->
+				</ul>
+			</div>
+			<div class="large-4 cell"></div>
+		</div>
+
+
+		<script type="text/javascript">
+			function r(f) {
+				/in/.test(document.readyState) ? setTimeout('r(' + f + ')', 9)
+						: f()
+			}
+
+			r(function() {
+
+				function ajax(url, inData, success, error) {
+					$.ajax({
+						type : "POST",
+						contentType : "application/json",
+						url : url,
+						data : JSON.stringify(inData),
+						dataType : 'json',
+						timeout : 500000,
+						success : success,
+						error : error
+					})
+				}
+
+				$("#sortable").sortable({
+					placeholder : "ui-state-highlight"
+				});
+
+				$("#select").click(function(event) {
+					event.preventDefault();
+					console.log($("#playlists").val());
+					ajax("/getPlaylist", $("#playlists").val());
+				});
+
+				$("#createPlaylist").click(function(event) {
+					event.preventDefault();
+					ajax("/createPlaylist", $("#newPlaylist").val(),function(data){
+						console.log(data);
+					});
+				});
+
+			});
+		</script>
+		<!--  -->
+	</div>
+</body>
+</html>
