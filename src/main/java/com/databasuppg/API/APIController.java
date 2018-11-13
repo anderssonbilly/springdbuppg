@@ -154,7 +154,7 @@ public class APIController {
                String name = nodeElement.getElementsByTagName("name").item(0).getTextContent();
                int duration = Integer.parseInt(nodeElement.getElementsByTagName("duration").item(0).getTextContent());
                String url = nodeElement.getElementsByTagName("url").item(0).getTextContent();
-               result.add(new Track(name, duration, url));
+               result.add(new Track(name, artist, duration, url));
             }
         }
         return result;
