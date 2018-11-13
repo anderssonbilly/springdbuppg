@@ -37,9 +37,11 @@ public class CollectionController {
 	}
 	
 	@RequestMapping(value = "/removeFromCollection", method = RequestMethod.POST)
-	public boolean removeFromCollection(Model model, String album) {
+	public ResponseEntity<Boolean> removeFromCollection(@RequestBody String album) {
+		
 		System.out.println(album);
-		return true;
+		
+		return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value = "/createPlaylist", method = RequestMethod.POST)
@@ -49,9 +51,11 @@ public class CollectionController {
 	}
 	
 	@RequestMapping(value = "/addToPlaylist", method = RequestMethod.POST)
-	public boolean createPlayList(Model model, String playlistName, String track) {
-		System.out.println(playlistName + " " + track);
-		return true;
+	public ResponseEntity<Boolean> removeFromCollection(@RequestBody String playlist, @RequestBody String track) {
+		
+		System.out.println(playlist + " " + track);
+		
+		return new ResponseEntity<>(Boolean.TRUE,HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/updatePlaylist", method = RequestMethod.POST)

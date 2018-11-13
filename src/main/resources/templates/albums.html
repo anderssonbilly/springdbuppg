@@ -24,8 +24,8 @@
 				<div th:if="${collection} == false">
 					<p>Ej inloggat</p>
 				</div>
-				
-				
+
+
 				<div class="flex-box">
 					<div th:each="album, i:${albumList}" class="album">
 						<div class="album-thumbnail">
@@ -35,12 +35,12 @@
 						</div>
 						<h2 th:text="${album.name}" class="album-title"></h2>
 						<p th:text="${album.artist}" class="artist"></p>
-						<a th:unless="${collection} == true" th:data-album="${album.name}" sec:authorize="isAuthenticated()"
-							class="addToCollection" href="#">Add to collection</a>
-							
-						<a th:if="${collection} == true" th:data-album="${album.name}" sec:authorize="isAuthenticated()"
+						<a th:unless="${collection} == true" th:data-album="${album.name}"
+							sec:authorize="isAuthenticated()" class="addToCollection"
+							href="#">Add to collection</a> <a th:if="${collection} == true"
+							th:data-album="${album.name}" sec:authorize="isAuthenticated()"
 							class="removeFromCollection" href="#">Remove from collection</a>
-						
+
 
 						<div class="reveal" th:id="tracks + ${i.count}" data-reveal>
 
@@ -50,6 +50,9 @@
 							<ul th:each="track:${album.tracks}">
 								<li><span th:text="${track.name}"></span><span
 									class="float-right" th:text="${track.duration}"></span></li>
+								<li><a th:if="${collection} == true"
+							th:data-track="${track.name}" sec:authorize="isAuthenticated()"
+							class="addToPlaylist">Add to playlist</a></li>
 							</ul>
 
 							<button class="close-button" data-close aria-label="Close modal"
@@ -70,25 +73,39 @@
 
 			r(function() {
 
+				function ajax(url, inData) {
+					$.ajax({
+						type : "POST",
+						contentType : "application/json",
+						url : url,
+						data : JSON.stringify(inData),
+						dataType : 'json',
+						timeout : 500000,
+						success : function(data) {
+							console.log("success: " + data);
+						},
+						error : function(e) {
+							console.log("Error: " + e);
+						}
+					})
+				}
+
 				$(".addToCollection").click(function(event) {
 					event.preventDefault();
-					
 					console.log($(this).attr("data-album"));
-					
-					$.ajax({
-			             type: "POST",
-			             contentType: "application/json",
-			             url: "/addToCollection",
-			             data: JSON.stringify($(this).attr("data-album")),
-			             dataType: 'json',
-			             timeout: 500000,
-			             success: function (data) {
-			                 console.log("success: " + data);
-			             },
-			             error: function (e) {
-			            	 console.log("Error: " + e);
-			             }
-					})
+					ajax("/addToCollection", $(this).attr("data-album"));
+				});
+
+				$(".removeFromCollection").click(function(event) {
+					event.preventDefault();
+					console.log($(this).attr("data-album"));
+					ajax("/removeFromCollection", $(this).attr("data-album"));
+				});
+
+				$(".addToPlaylist").click(function(event) {
+					event.preventDefault();
+					console.log($(this).attr("data-track"));
+					ajax("/addToPlaylist", {"spellista", $(this).attr("data-track")});
 				});
 
 			});
