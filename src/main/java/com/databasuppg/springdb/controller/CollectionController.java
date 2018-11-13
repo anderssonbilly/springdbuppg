@@ -112,7 +112,7 @@ public class CollectionController {
         return tracks;
     }
 
-    public ArrayList<Track> getSongsFromAlbum(int albumId) {
+    public ArrayList<Track> getTracksFromAlbum(int albumId) {
 
         Connection conn;
         ResultSet result;
