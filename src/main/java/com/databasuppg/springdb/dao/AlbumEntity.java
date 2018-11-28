@@ -1,6 +1,5 @@
 package com.databasuppg.springdb.dao;
 
-import java.util.ArrayList;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -27,7 +26,6 @@ import lombok.Setter;
 @Table(name = "album", uniqueConstraints = @UniqueConstraint(columnNames = { "id" }))
 public class AlbumEntity {
     
-	@Column(unique = true)
 	private Long id;
 	
 	private String name;

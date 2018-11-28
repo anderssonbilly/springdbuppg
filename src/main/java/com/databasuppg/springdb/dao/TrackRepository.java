@@ -1,5 +1,8 @@
 package com.databasuppg.springdb.dao;
 
-public class TrackRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface TrackRepository extends  JpaRepository<TrackEntity, Long>{
+
 
 }

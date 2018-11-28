@@ -2,6 +2,8 @@ package com.databasuppg.springdb.controller;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.security.RolesAllowed;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,8 @@ import com.databasuppg.API.Album;
 import com.databasuppg.API.Track;
 import com.databasuppg.springdb.dao.AlbumEntity;
 import com.databasuppg.springdb.dao.AlbumRepository;
+import com.databasuppg.springdb.dao.TrackEntity;
+import com.databasuppg.springdb.dao.TrackRepository;
 
 @Controller
 public class CollectionController {
@@ -28,7 +32,10 @@ public class CollectionController {
 
 	@Autowired
 	private AlbumRepository albumRepository;
+	@Autowired
+	private TrackRepository trackRepository;
 
+	// TODO MAKE SURE YOU SAVE CORRECT ALBUM; NOW IT JUST SEARCHES FOR FIRST ALBUM TITLE MATCH
 	@RequestMapping(value = "/addToCollection", method = RequestMethod.POST)
 	public ResponseEntity<Boolean> addToCollection(@RequestBody String album) {
 		album = album.replaceAll("\"", "");
@@ -44,7 +51,19 @@ public class CollectionController {
 				albumEntity.setArtist(apiAlbum.getArtist());
 				albumEntity.setImageReference(apiAlbum.getImageReference());
 				albumEntity.setUrl(apiAlbum.getUrl());
-//				albumEntity.setTracks(); TODO TRACKS ENTITY LIST
+
+				HashSet<TrackEntity> tracks = new HashSet<TrackEntity>();
+				for (int i = 0; i < apiAlbum.getTracks().size(); i++) {
+					TrackEntity track = new TrackEntity();
+					track.setName(apiAlbum.getTracks().get(i).getName());
+					track.setArtist(apiAlbum.getArtist());
+					track.setDuration(apiAlbum.getTracks().get(i).getDuration());
+					track.setUrl(apiAlbum.getTracks().get(i).getUrl());
+					tracks.add(track);
+				}
+				trackRepository.saveAll(tracks);
+				
+				albumEntity.setTracks(tracks);
 				albumRepository.save(albumEntity);
 			}
 		}
