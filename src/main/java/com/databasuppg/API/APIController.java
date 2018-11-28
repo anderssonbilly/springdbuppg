@@ -1,173 +1,119 @@
 package com.databasuppg.API;
 
-import org.springframework.web.util.UriUtils;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+
 import java.io.*;
 import java.util.ArrayList;
 
-
-
 public class APIController {
 
-    private String key;
-    private DocumentBuilder documentBuilder;
-    private APIHandler api;
+	private String key;
+	private APIHandler api;
 
+	public APIController(String key) {
+		this.key = key;
+		this.api = new APIHandler(key);
+	}
 
-    public APIController(String key) {
-        this.key = key;
-        this.api = new APIHandler(key);
+	public ArrayList<Album> getTopAlbums(String genre, int limit, int page) {
+		ArrayList<Album> results = new ArrayList<>();
 
-        try {
-            this.documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-        } catch(ParserConfigurationException e) {
-            e.getMessage();
-        }
-    }
+		try {
+			JsonObject artistResult = api.getTopAlbums(genre, limit, page);
 
-    public ArrayList<Album> getTopAlbums(String genre, int limit, int page) {
-        ArrayList<Album> results = new ArrayList<>();
+			JsonArray arr = artistResult.getAsJsonArray("album");
+			for (int i = 0; i < arr.size(); i++) {
+				String albumName = arr.get(i).getAsJsonObject().get("name").toString();
+				String artistName = arr.get(i).getAsJsonObject().get("artist").getAsJsonObject().get("name").toString();
+				String url = arr.get(i).getAsJsonObject().get("url").toString();
+				String image = arr.get(i).getAsJsonObject().get("image").getAsJsonArray().get(2).getAsJsonObject()
+						.get("#text").toString();
 
-        try {
-            Document artistResults = api.getTopAlbums("genre", limit, page);
-            artistResults.normalize();
+				ArrayList<Track> tracks = getTracks(albumName.replaceAll("\"", ""), artistName.replaceAll("\"", ""));
 
-            Element element = artistResults.getDocumentElement();
-            NodeList nodes = element.getElementsByTagName("album");
+				results.add(new Album(albumName, artistName, url, image, tracks));
+			}
 
-            for(int i=0; i<nodes.getLength(); i++) {
-                Node node = nodes.item(i);
+		} catch (IOException | SAXException e) {
+			System.err.println(e.getMessage());
+		}
+		return results;
+	}
 
-                if(node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element currentElement = (Element) node;
-                    Element temp = (Element) currentElement.getElementsByTagName("artist").item(0);
+	public ArrayList<Album> searchArtist(String artist, int limit, int page) {
+		ArrayList<Album> results = new ArrayList<>();
 
-                    String artistName = temp.getElementsByTagName("name").item(0).getTextContent();
-                    String albumName = currentElement.getElementsByTagName("name").item(0).getTextContent();
-                    String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
-                    String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
-                    ArrayList<Track> tracks = getTrack(
-                            UriUtils.encode(albumName,"utf-8"),
-                            UriUtils.encode(artistName, "utf-8"));
+		try {
+			JsonObject artistResult = api.getTopAlbums(artist, limit, page);
 
-                    results.add(new Album(albumName, artistName, url, image, tracks));
-                }
-            }
-        } catch(IOException | SAXException e) {
-            System.err.println(e.getMessage());
-        }
-        return results;
-    }
+			JsonArray arr = artistResult.getAsJsonArray("album");
+			for (int i = 0; i < arr.size(); i++) {
+				String albumName = arr.get(i).getAsJsonObject().get("name").toString();
+				String artistName = arr.get(i).getAsJsonObject().get("artist").getAsJsonObject().get("name").toString();
+				String url = arr.get(i).getAsJsonObject().get("url").toString();
+				String image = arr.get(i).getAsJsonObject().get("image").getAsJsonArray().get(2).getAsJsonObject()
+						.get("#text").toString();
 
-    public ArrayList<Album> searchArtist(String artist, int limit, int page) {
-        ArrayList<Album> results = new ArrayList<>();
+				ArrayList<Track> tracks = getTracks(albumName.replaceAll("\"", ""), artistName.replaceAll("\"", ""));
 
-        try {
-           Document artistResults = api.getTopAlbums(artist, limit, page);
-           artistResults.normalize();
+				results.add(new Album(albumName, artistName, url, image, tracks));
+			}
 
-           Element element = artistResults.getDocumentElement();
-           NodeList nodes = element.getElementsByTagName("album");
+		} catch (IOException | SAXException e) {
+			System.err.println(e.getMessage());
+		}
+		return results;
+	}
 
-           // get correct name if typed wrong.
-           artist = element.getElementsByTagName("topalbums").item(0).
-                   getAttributes().getNamedItem("artist").getTextContent();
+	public ArrayList<Album> searchAlbum(String album, int limit, int page) {
+		ArrayList<Album> results = new ArrayList<>();
 
-           for(int i=0; i<nodes.getLength(); i++) {
-               Node node = nodes.item(i);
+		try {
+			JsonObject artistResult = api.searchAlbum(album, limit, page);
 
-               if(node.getNodeType() == Node.ELEMENT_NODE) {
-                   Element currentElement = (Element) node;
-                   String artistName = artist;
-                   String albumName = currentElement.getElementsByTagName("name").item(0).getTextContent();
-                   String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
-                   String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
-                   ArrayList<Track> tracks = getTrack(
-                           UriUtils.encode(albumName,"utf-8"),
-                           UriUtils.encode(artistName, "utf-8"));
+			JsonArray arr = artistResult.getAsJsonArray("album");
+			for (int i = 0; i < arr.size(); i++) {	
+				String albumName = arr.get(i).getAsJsonObject().get("name").toString();
+				String artistName = arr.get(i).getAsJsonObject().get("artist").toString();
+				String url = arr.get(i).getAsJsonObject().get("url").toString();
+				String image = arr.get(i).getAsJsonObject().get("image").getAsJsonArray().get(2).getAsJsonObject()
+						.get("#text").toString();
 
-                   results.add(new Album(albumName, artistName, url, image, tracks));
-               }
-           }
-        } catch(IOException | SAXException e) {
-            System.err.println(e.getMessage());
-        }
-        return results;
-    }
+				ArrayList<Track> tracks = getTracks(albumName.replaceAll("\"", ""), artistName.replaceAll("\"", ""));
 
-    public ArrayList<Album> searchAlbum(String albumName, int limit, int page) {
+				results.add(new Album(albumName, artistName, url, image, tracks));
+			}
 
-        ArrayList<Album> results = new ArrayList<>();
+		} catch (IOException | SAXException e) {
+			System.err.println(e.getMessage());
+		}
+		return results;
+	}
 
-        try {
-            Document albumResults = api.searchAlbum(albumName, limit, page);
-            albumResults.normalize();
-
-            Element element = albumResults.getDocumentElement();
-            NodeList nodes = element.getElementsByTagName("album");
-
-
-            for(int i=0; i<nodes.getLength(); i++) {
-                Node node = nodes.item(i);
-
-                if(node.getNodeType() == Node.ELEMENT_NODE) {
-                    Element currentElement = (Element) node;
-                    String album = currentElement.getElementsByTagName("name").item(0).getTextContent();
-                    String artist = currentElement.getElementsByTagName("artist").item(0).getTextContent();
-                    String url = currentElement.getElementsByTagName("url").item(0).getTextContent();
-                    String image = currentElement.getElementsByTagName("image").item(2).getTextContent();
-                    ArrayList<Track> tracks = getTrack(
-                            UriUtils.encode(album, "utf-8"),
-                            UriUtils.encode(artist, "utf-8"));
-
-                    results.add(new Album(album, artist, url, image, tracks));
-                }
-            }
-        } catch(IOException | SAXException e) {
-            e.printStackTrace();
-        }
-        return results;
-    }
-
-    private ArrayList<Track> getTrack(String album, String artist) throws IOException, SAXException {
+	private ArrayList<Track> getTracks(String album, String artist) throws IOException, SAXException {
         ArrayList<Track> result = new ArrayList<>();
-
-        Document doc = api.getAlbumInfo(album, artist);
-        doc.normalize();
-
-        Element element = doc.getDocumentElement();
-        NodeList nodes = element.getElementsByTagName("track");
-
-        for(int i=0; i<nodes.getLength(); i++) {
-            Node node = nodes.item(i);
-
-            if(node.getNodeType() == node.ELEMENT_NODE) {
-               Element nodeElement = (Element) node;
-               String name = nodeElement.getElementsByTagName("name").item(0).getTextContent();
-               int duration = Integer.parseInt(nodeElement.getElementsByTagName("duration").item(0).getTextContent());
-               String url = nodeElement.getElementsByTagName("url").item(0).getTextContent();
-               result.add(new Track(name, artist, duration, url));
-            }
-        }
+        
+        JsonObject albumResult = api.getAlbumInfo(album, artist);
+        try {
+        	JsonArray arr = albumResult.getAsJsonObject("tracks").getAsJsonArray("track");
+            
+            for(int i = 0; i < arr.size();i++) {
+            	String trackTitle = arr.get(i).getAsJsonObject().get("name").toString();
+            	int duration = Integer.parseInt(arr.get(i).getAsJsonObject().get("duration").toString().replaceAll("\"", ""));
+            	String url = arr.get(i).getAsJsonObject().get("url").toString();
+            			
+            	result.add(new Track(trackTitle, artist, duration,url));
+            }	
+		} catch (Exception e) {
+			System.err.println("ERROR: Could not get album info. Album: " + album + ", artist: " + artist);
+		}
+        
         return result;
     }
 
-    // API methods
-
-
-
-
-
+	// API methods
 
 }
-
-
-

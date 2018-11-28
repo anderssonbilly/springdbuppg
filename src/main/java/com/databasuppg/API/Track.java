@@ -8,9 +8,9 @@ public class Track {
     @Getter String url;
 
     public Track(String name, String artist, int duration, String url) {
-        this.name = name;
+        this.name = name.replace("\"", "");
         this.duration = duration;
-        this.url = url;
+        this.url = url.replace("\"", "");
     }
 
     public Track(String name, String artist, int duration) {

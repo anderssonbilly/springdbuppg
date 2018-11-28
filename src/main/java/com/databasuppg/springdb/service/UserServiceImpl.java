@@ -23,6 +23,13 @@ public class UserServiceImpl implements IUserService{
     @Override
     public void save(UserEntity user) {
     	HashSet<RoleEntity> userRole = new HashSet<RoleEntity>();
+    	
+    	if(roleRepository.findByName("USER") == null) {
+    		RoleEntity role = new RoleEntity();
+    		role.setName("USER");
+    		roleRepository.save(role);
+    	}
+    	
     	userRole.add(roleRepository.findByName("USER"));
         user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
         user.setRoles(userRole);

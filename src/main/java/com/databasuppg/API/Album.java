@@ -14,10 +14,10 @@ public class Album {
 
 
     public Album(String name, String artist, String url, String imageReference, ArrayList<Track> tracks) {
-        this.name = name;
-        this.artist = artist;
-        this.url = url;
-        this.imageReference = imageReference;
+        this.name = name.replace("\"", "");
+        this.artist = artist.replace("\"", "");
+        this.url = url.replace("\"", "");
+        this.imageReference = imageReference.replace("\"", "");
         this.tracks = tracks;
 
     }

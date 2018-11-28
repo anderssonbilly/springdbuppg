@@ -1,51 +1,72 @@
 package com.databasuppg.API;
 
-import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 
 public class APIHandler {
 
-    DocumentBuilder documentBuilder;
-    private String root = "http://ws.audioscrobbler.com/2.0/";
-    private String key;
+	private JsonParser parser;
+	private String root = "http://ws.audioscrobbler.com/2.0/";
+	private String key;
 
-    public APIHandler(String key) {
-       this.key = key;
+	public APIHandler(String key) {
+		this.key = key;
+		parser = new JsonParser();
+	}
 
-       try {
-           this.documentBuilder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-       } catch(ParserConfigurationException e) {
-           System.err.println(e.getMessage());
-       }
+	public JsonObject searchAlbum(String album, int limit, int page) throws IOException, SAXException {
+		album = URLEncoder.encode(album, "UTF-8");
+		URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&page=%s&api_key=%s&format=json",
+				album, limit, page, this.key));
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-    }
+		con.setRequestMethod("GET");
+		con.connect();
+		BufferedReader json = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
+		JsonElement element = parser.parse(json);
+		element = element.getAsJsonObject().getAsJsonObject("results").getAsJsonObject("albummatches");
+		
+		return (JsonObject) element;
+	}
 
-    public Document searchAlbum(String album, int limit, int page) throws IOException, SAXException  {
-        URL url = new URL(root + String.format("?method=album.search&album=%s&limit=%s&page=%s&api_key=%s", album, limit, page, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-    }
+	public JsonObject getAlbumInfo(String album, String artist) throws IOException, SAXException {
+		album = URLEncoder.encode(album, "UTF-8");
+		artist = URLEncoder.encode(artist, "UTF-8");
+		URL url = new URL(root + String.format("?method=album.getinfo&artist=%s&album=%s&api_key=%s&format=json",
+				artist, album, this.key));
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
 
-    public Document getAlbumInfo(String album, String artist) throws IOException, SAXException {
-        // album = UriUtils.encode(album, "utf-8");
-        // artist = UriUtils.encode(artist, "utf-8");
-        URL url = new URL(root + String.format("?method=album.getinfo&artist=%s&album=%s&api_key=%s", artist, album, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-    }
+		con.setRequestMethod("GET");
+		con.connect();
+		BufferedReader json = new BufferedReader(new InputStreamReader(con.getInputStream()));
 
-    public Document getTopAlbums(String genre, int limit, int page) throws IOException, SAXException {
-        // artist = UriUtils.encode(artist, "utf-8");
-        URL url = new URL(root + String.format("?method=tag.gettopalbums&tag=%s&limit=%s&page=%s&api_key=%s", genre, limit, page, this.key));
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
-        return documentBuilder.parse(con.getInputStream());
-    }
+		return parser.parse(json).getAsJsonObject().getAsJsonObject("album");
+	}
+
+	public JsonObject getTopAlbums(String genre, int limit, int page) throws IOException, SAXException {
+		genre = URLEncoder.encode(genre, "UTF-8");
+		URL url = new URL(
+				root + String.format("?method=tag.gettopalbums&tag=%s&limit=%s&page=%s&api_key=%s&format=json", genre,
+						limit, page, this.key));
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+
+		con.setRequestMethod("GET");
+		con.connect();
+		BufferedReader json = new BufferedReader(new InputStreamReader(con.getInputStream()));
+
+		return parser.parse(json).getAsJsonObject().getAsJsonObject("albums");
+	}
 }

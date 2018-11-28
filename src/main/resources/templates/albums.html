@@ -50,9 +50,9 @@
 							<ul th:each="track:${album.tracks}">
 								<li><span th:text="${track.name}"></span><span
 									class="float-right" th:text="${track.duration}"></span></li>
-								<li><a th:if="${collection} == true"
-							th:data-track="${track.name}" sec:authorize="isAuthenticated()"
-							class="addToPlaylist">Add to playlist</a></li>
+								<li th:if="${collection} == true"><a
+									th:data-track="${track.name}" sec:authorize="isAuthenticated()"
+									class="addToPlaylist">Add to playlist</a></li>
 							</ul>
 
 							<button class="close-button" data-close aria-label="Close modal"
@@ -102,11 +102,11 @@
 					ajax("/removeFromCollection", $(this).attr("data-album"));
 				});
 
-				$(".addToPlaylist").click(function(event) {
+				/*$(".addToPlaylist").click(function(event) {
 					event.preventDefault();
 					console.log($(this).attr("data-track"));
 					ajax("/addToPlaylist", {"spellista", $(this).attr("data-track")});
-				});
+				});*/
 
 			});
 		</script>
